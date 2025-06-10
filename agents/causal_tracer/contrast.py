@@ -8,7 +8,7 @@ __all__ = ["CounterfactualConstructor"]
 
 from agents.causal_tracer.buffer    import *
 
-class CounterFactualConstructor():
+class CounterfactualConstructor():
     """# Counterfactual Constructor.
 
     Module for generating counterfactual trajectories from real environment traces by intervening at 

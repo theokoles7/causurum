@@ -4,15 +4,16 @@ Implement a utility that records environment-agent interactions and can optional
 counterfactual interventions using stored trajectories.
 """
 
-__all__ = ["TraceRecorder"]
+__all__ = ["Recorder"]
 
-from agents.causal_tracer.buffer    import *
+from agents.causal_tracer.buffer    import Buffer
 from agents.causal_tracer.contrast  import CounterFactualConstructor
+from agents.causal_tracer.step      import Step
 from environments                   import Environment
 
 
-class TraceRecorder:
-    """# Tracer Recorder.
+class Recorder:
+    """# Causal Tracer Recorder.
 
     Collects traces of environment-agent interaction and optionally generates counterfactuals via
     stored trajectory replays.
@@ -30,7 +31,7 @@ class TraceRecorder:
             * symbolic_mapper       (Callable, optional):   Optional stringifier for symbolic 
                                                             representation of actions.
         """
-        self._buffer_:                      CausalTraceBuffer =         CausalTraceBuffer()
+        self._buffer_:                      Buffer =                    Buffer()
         self._counterfactual_constructor_:  CounterFactualConstructor = CounterFactualConstructor(
                                                                             transition_function =   transition_function,
                                                                             symbolic_mapper =       symbolic_mapper
@@ -39,7 +40,7 @@ class TraceRecorder:
     def generate_counterfactual(self,
         index:      int,
         new_action: any
-    ) -> list[TraceStep]:
+    ) -> list[Step]:
         """# Generate Counterfactual Trace.
 
         Reconstructs an alternate trajectory from a prior trace using a different action at a given
@@ -50,7 +51,7 @@ class TraceRecorder:
             * new_action    (any):  Action to substitute at the index.
 
         ## Returns:
-            * list[TraceStep]:  Counterfactual trace.
+            * list[Step]:  Counterfactual trace.
         """
         return self._counterfactual_constructor.intervene(
             buffer =        self._buffer_,
@@ -61,7 +62,7 @@ class TraceRecorder:
     def sample_counterfactual(self,
         method:                 str =       "random",
         new_action_function:    callable =  lambda step: step.action
-    ) -> list[TraceStep]:
+    ) -> list[Step]:
         """# Sample Step.
 
         Choose an index using the buffer's sampling strategy and substitute a new action from a 
@@ -73,13 +74,13 @@ class TraceRecorder:
                                                 original step.
 
         ## Returns:
-            * list[TraceStep]:  Generated counterfactual trace.
+            * list[Step]:  Generated counterfactual trace.
         """
         # Sample step from buffer.
         index:          int =       self._buffer_.sample(method=method)
         
         # Reference original action from that step.
-        original_step:  TraceStep = self._buffer_.trace[index]
+        original_step:  Step = self._buffer_.trace[index]
         
         # Determine new step to take during intervention step.
         new_action:     any =       new_action_function(original_step)
@@ -94,7 +95,7 @@ class TraceRecorder:
         environment:    Environment,
         policy:         callable,
         max_steps:      int =       1000
-    ) -> CausalTraceBuffer:
+    ) -> Buffer:
         """# Trace Episode.
 
         Executes an episode using a given policy and records the interaction trace.
@@ -105,7 +106,7 @@ class TraceRecorder:
             * max_steps  (int, optional):   Maximum steps per episode.
 
         ## Returns:
-            * CausalTraceBuffer: Trace of the executed episode.
+            * Buffer: Trace of the executed episode.
         """
         # Clear trace buffer.
         self._buffer_.clear()
@@ -123,7 +124,7 @@ class TraceRecorder:
             next_state, reward, done, *_ =              environment.step(action)
 
             # Create a trace step and record it
-            step:                           TraceStep = TraceStep(
+            step:                           Step = Step(
                                                             state =         state,
                                                             action =        action,
                                                             reward =        reward,

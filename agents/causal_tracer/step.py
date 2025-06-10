@@ -1,12 +1,12 @@
-"""# causurum.agents.causal_tracer.buffer.TraceStep
+"""# causurum.agents.causal_tracer.Step
 
 Define data structure to hold metadata related to transitions in an environment when actions are 
 submitted.
 """
 
-__all__ = ["TraceStep"]
+__all__ = ["Step"]
 
-class TraceStep():
+class Step():
     """# Trace Step.
     
     Atomic data structure comprising CausalTraceBuffers, which stores step-by-step data related to 

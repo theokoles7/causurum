@@ -3,14 +3,14 @@
 Define a buffer capable of storing/managing transition traces.
 """
 
-__all__ = ["CausalTraceBuffer"]
+__all__ = ["Buffer"]
 
-from dataclasses                            import asdict
-from random                                 import randint
+from dataclasses                import asdict
+from random                     import randint
 
-from agents.causal_tracer.buffer.trace_step import TraceStep
+from agents.causal_tracer.step  import Step
 
-class CausalTraceBuffer():
+class Buffer():
     """# Causal Trace Buffer.
     
     Buffer that stores a complete trajectory (trace) for a single episode of agent/environment 
@@ -22,7 +22,7 @@ class CausalTraceBuffer():
         
         Initialize buffer's empty tree.
         """
-        self._trace_:   list[TraceStep] =   []
+        self._trace_:   list[Step] =    []
         
     def __len__(self) -> int:
         """# Reference Buffer Length.
@@ -39,7 +39,7 @@ class CausalTraceBuffer():
         
         Re-initialize trace buffer as empty list.
         """
-        self._trace_:   list[TraceStep] =   []
+        self._trace_:   list[Step] =    []
         
     def sample(self,
         method: str =   "random"
@@ -49,7 +49,8 @@ class CausalTraceBuffer():
         Sample a time index at which to perform an intervention.
 
         ## Args:
-            * method    (str, optional):    Method by which buffer will be sampled. Defaults to "random".
+            * method    (str, optional):    Method by which buffer will be sampled. Defaults to 
+                                            "random".
 
         ## Returns:
             * int:  Trace index at which to intervene.
@@ -67,7 +68,7 @@ class CausalTraceBuffer():
             case _:         raise ValueError(f"Invalid sampling method provided: {method}")
         
     def record(self,
-        step:   TraceStep
+        step:   Step
     ) -> None:
         """# Record Step.
         
@@ -75,7 +76,7 @@ class CausalTraceBuffer():
         transition.
 
         ## Args:
-            * step  (TraceStep):    Step transition metadata structure.
+            * step  (Step): Step transition metadata structure.
         """
         # Append transition to trace.
         self._trace_.append(step)
@@ -91,12 +92,12 @@ class CausalTraceBuffer():
         return [asdict(step) for step in self.trace]
         
     @property
-    def trace(self) -> list[TraceStep]:
+    def trace(self) -> list[Step]:
         """# Reference Trace.
         
         Provide the trace stored in buffer.
 
         ## Returns:
-            * list[TraceStep]:  Copy of trace buffer.
+            * list[Step]:   Copy of trace buffer.
         """
         return self._trace_.copy()

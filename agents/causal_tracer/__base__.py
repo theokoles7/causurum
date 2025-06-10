@@ -7,9 +7,9 @@ counterfactual interventions using stored trajectories.
 __all__ = ["CausalTracer"]
 
 from agents.__base__                import Agent
-from agents.causal_tracer.buffer    import TraceStep
 from agents.causal_tracer.contrast  import CounterFactualConstructor
-from agents.causal_tracer.tracer    import TraceRecorder
+from agents.causal_tracer.recorder  import Recorder
+from agents.causal_tracer.step      import Step
 from environments                   import Environment
 
 
@@ -38,16 +38,16 @@ class CausalTracer(Agent):
         super().__init__()
 
         # Recorder manages trace collection and counterfactual reasoning.
-        self._recorder_:            TraceRecorder = TraceRecorder(
-                                                        transition_function =   transition_function,
-                                                        symbolic_mapper =       symbolic_mapper
-                                                    )
+        self._recorder_:            Recorder =  Recorder(
+                                                    transition_function =   transition_function,
+                                                    symbolic_mapper =       symbolic_mapper
+                                                )
 
         # Method used to select intervention points in trace.
-        self._intervention_method_: str =           intervention_method
+        self._intervention_method_: str =       intervention_method
 
         # Most recent action chosen by policy.
-        self._latest_action_:       any =           None
+        self._latest_action_:       any =       None
         
     # def act(self, state: any) -> any:
     #     """# Select Action.
@@ -115,7 +115,7 @@ class CausalTracer(Agent):
 
         # Define naive contrast function (e.g., flip binary action).
         def contrast(
-            step: TraceStep
+            step: Step
         ) -> any:
             if isinstance(step.action, int) and step.action in (0, 1):
                 return 1 - step.action
